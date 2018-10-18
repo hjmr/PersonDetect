@@ -50,9 +50,10 @@ for img_file in arg.images:
             img_file = os.path.basename(img_file)
             out_base, out_ext = os.path.splitext(img_file)
             out_file = "{}/{}-{}{}".format(arg.out_dir, out_base, idx, out_ext)
-            cv2.imwrite(out_file, person_img)
-            print("ourput a person to {} ...".format(person_img))
+            person_img_bgr = person_img[:, :, ::-1]
+            cv2.imwrite(out_file, person_img_bgr)
+            print("ourput a person to {} ...".format(out_file))
         else:
-            plt.imshow(face_img)
+            plt.imshow(person_img)
             plt.show()
             input("please input [return] key.")
