@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import cv2
 import numpy as np
 
+from chainer.backends import cuda
+
 from chainercv.datasets import voc_bbox_label_names
 from chainercv.links import YOLOv3
 from chainercv.utils import read_image
@@ -17,6 +19,8 @@ def parse_arg():
     parser.add_argument('-t', '--threshold', type=float, default=0.6, help='set the score threshold.')
     parser.add_argument('-o', '--out_dir', type=str,
                         help='name of the directory where detected person images will be saved to.')
+    parser.add_argument('-g', '--gpuid', type=int, default=-1,
+                        help='GPU ID (-1: CPU mode)')
     parser.add_argument('images', type=str, nargs='+', help='a list of images.')
     return parser.parse_args()
 
@@ -39,6 +43,10 @@ for img_file in arg.images:
     print("processing [{}] ...".format(img_file))
     img = read_image(img_file)
     model = YOLOv3(pretrained_model='voc0712')
+    if 0 <= arg.gpuid:
+        cuda.get_device_from_id(arg.gpuid).use()
+        model.to_gpu()
+
     model.score_thresh = arg.threshold
     bboxes, labels, scores = model.predict([img])
     bboxes, labels, scores = pickup_person(bboxes[0], labels[0], scores[0])
